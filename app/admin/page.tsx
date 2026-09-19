@@ -1,0 +1,6 @@
+import { redirect } from 'next/navigation';
+import { getCurrentUser } from '@/lib/auth';
+import { db } from '@/lib/db';
+import { createTokenCode } from '@/app/actions/admin';
+export const dynamic = 'force-dynamic';
+export default async function AdminPage() { const user = await getCurrentUser(); if (!user || user.role !== 'ADMIN') redirect('/dashboard'); const [users, codes] = await Promise.all([db.user.count(), db.tokenCode.count({ where: { active: true } })]); return <main className="mx-auto max-w-5xl px-6 py-16"><p className="text-sm uppercase tracking-[.2em] text-moss">Control</p><h1 className="mt-3 font-display text-6xl">Administración</h1><div className="mt-12 grid gap-4 sm:grid-cols-2"><div className="border border-ink/15 p-6"><p className="text-xs uppercase tracking-[.2em] text-moss">Usuarios</p><p className="mt-8 font-display text-6xl">{users}</p></div><div className="border border-ink/15 p-6"><p className="text-xs uppercase tracking-[.2em] text-moss">Códigos activos</p><p className="mt-8 font-display text-6xl">{codes}</p></div></div><form action={createTokenCode} className="mt-12 flex max-w-sm gap-3"><input name="amount" type="number" min="1" required placeholder="Cantidad de tokens" className="min-w-0 flex-1 border border-ink/20 bg-white/50 p-3" /><button className="bg-ink px-4 py-3 text-sm text-cream">Crear código</button></form></main>; }

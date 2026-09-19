@@ -1,0 +1,5 @@
+import { redirect } from 'next/navigation';
+import { getCurrentUser } from '@/lib/auth';
+import { redeemCode } from '@/app/actions/game';
+import { SubmitButton } from '@/components/submit-button';
+export default async function RedeemPage() { if (!(await getCurrentUser())) redirect('/login'); return <main className="mx-auto max-w-xl px-6 py-20"><p className="text-sm uppercase tracking-[.2em] text-moss">Carga de energía</p><h1 className="mt-4 font-display text-6xl">Canjear tokens</h1><p className="mt-5 text-ink/60">Introduce un código único. Cada código solo puede utilizarse una vez.</p><form action={redeemCode} className="mt-10 flex gap-3"><input name="code" required placeholder="TOKEN-XXXX" className="min-w-0 flex-1 border border-ink/20 bg-white/50 p-3 uppercase" /><SubmitButton>Canjear</SubmitButton></form></main>; }

@@ -1,0 +1,6 @@
+import { db } from '@/lib/db';
+import { CardTile } from '@/components/card-tile';
+import { getCurrentUser } from '@/lib/auth';
+import { buyCard } from '@/app/actions/game';
+export const dynamic = 'force-dynamic';
+export default async function CardsPage() { const [cards, user] = await Promise.all([db.cardType.findMany({ where: { active: true }, orderBy: { panels: 'asc' } }), getCurrentUser()]); return <main className="mx-auto max-w-6xl px-6 py-16"><p className="text-sm uppercase tracking-[.2em] text-moss">Catálogo solar</p><h1 className="mt-3 font-display text-6xl">Tarjetas</h1><p className="mt-5 max-w-xl text-ink/60">Compra hasta cuatro tarjetas distintas. Cada una se activa durante una hora y luego descansa durante 24 horas.</p><div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{cards.map(card => <div key={card.id}><CardTile panels={card.panels} tokenCost={card.tokenCost} />{user ? <form action={buyCard} className="-mt-14 px-6 pb-6"><input type="hidden" name="cardTypeId" value={card.id} /><button className="relative border-b border-ink pb-1 text-sm">Comprar por {card.tokenCost} tokens →</button></form> : null}</div>)}</div></main>; }

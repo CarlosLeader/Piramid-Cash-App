@@ -1,0 +1,4 @@
+import { redirect } from 'next/navigation';
+import { getCurrentUser } from '@/lib/auth';
+export const dynamic = 'force-dynamic';
+export default async function ProfilePage() { const user = await getCurrentUser(); if (!user) redirect('/login'); return <main className="mx-auto max-w-2xl px-6 py-16"><p className="text-sm uppercase tracking-[.2em] text-moss">Cuenta</p><h1 className="mt-3 font-display text-6xl">Perfil</h1><dl className="mt-12 divide-y divide-ink/10 border-y border-ink/10">{[['Nombre', user.name], ['Email', user.email], ['Código', user.userCode], ['Rol', user.role]].map(([label, value]) => <div key={label} className="flex justify-between py-5"><dt className="text-ink/50">{label}</dt><dd>{value}</dd></div>)}</dl></main>; }

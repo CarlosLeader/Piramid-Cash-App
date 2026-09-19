@@ -1,0 +1,125 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum CardStatus {
+  AVAILABLE
+  ACTIVE
+  COOLDOWN
+}
+
+enum TokenTransactionType {
+  REDEEM
+  PURCHASE
+  BONUS
+  SPEND
+}
+
+enum CardTransactionType {
+  PURCHASE
+  ACTIVATION
+}
+
+model User {
+  id                String             @id @default(cuid())
+  email             String             @unique
+  passwordHash      String
+  name              String
+  userCode          String             @unique
+  role              Role               @default(USER)
+  tokenBalance      Int                @default(0)
+  referredById      String?
+  referredBy        User?              @relation("UserReferrals", fields: [referredById], references: [id])
+  referrals         User[]             @relation("UserReferrals")
+  cards             UserCard[]
+  tokenTransactions TokenTransaction[]
+  cardTransactions  CardTransaction[]
+  tokenCodes        TokenCode[]        @relation("RedeemedCodes")
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  resetTokens       PasswordResetToken[]
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+  @@index([userId])
+}
+
+model CardType {
+  id           String             @id @default(cuid())
+  panels       Int                @unique
+  tokenCost    Int
+  active       Boolean            @default(true)
+  cards        UserCard[]
+  transactions CardTransaction[]
+  createdAt    DateTime           @default(now())
+}
+
+model UserCard {
+  id            String             @id @default(cuid())
+  userId        String
+  cardTypeId    String
+  status        CardStatus         @default(AVAILABLE)
+  activatedAt   DateTime?
+  activeUntil   DateTime?
+  cooldownUntil DateTime?
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cardType      CardType           @relation(fields: [cardTypeId], references: [id])
+  transactions  CardTransaction[]
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  @@unique([userId, cardTypeId])
+  @@index([userId, status])
+}
+
+model TokenCode {
+  id           String    @id @default(cuid())
+  code         String    @unique
+  amount       Int
+  active       Boolean   @default(true)
+  redeemedAt   DateTime?
+  redeemedById String?
+  redeemedBy   User?     @relation("RedeemedCodes", fields: [redeemedById], references: [id])
+  createdAt    DateTime  @default(now())
+}
+
+model TokenTransaction {
+  id        String                @id @default(cuid())
+  userId    String
+  amount    Int
+  type      TokenTransactionType
+  reference String?
+  user      User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime              @default(now())
+  @@index([userId, createdAt])
+}
+
+model CardTransaction {
+  id         String               @id @default(cuid())
+  userId     String
+  cardTypeId String
+  userCardId String?
+  type       CardTransactionType
+  amount     Int
+  user       User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cardType   CardType             @relation(fields: [cardTypeId], references: [id])
+  userCard   UserCard?            @relation(fields: [userCardId], references: [id])
+  createdAt  DateTime             @default(now())
+  @@index([userId, createdAt])
+}

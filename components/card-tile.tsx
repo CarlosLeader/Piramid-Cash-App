@@ -1,0 +1,4 @@
+import Link from 'next/link';
+export function CardTile({ panels, tokenCost, action = false }: { panels: number; tokenCost: number; action?: boolean }) {
+  return <article className="border border-ink/15 bg-white/50 p-6"><div className="mb-12 flex items-start justify-between"><span className="text-xs uppercase tracking-[.2em] text-moss">Solar / {panels}</span><span className="text-3xl text-sun">✦</span></div><h3 className="font-display text-3xl">{panels} paneles</h3><p className="mt-2 text-sm text-ink/60">Genera {tokenCost} tokens de energía.</p>{action && <Link href="/login" className="mt-6 inline-block border-b border-ink pb-1 text-sm">Empezar →</Link>}</article>;
+}

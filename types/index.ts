@@ -1,0 +1,2 @@
+export type CardStatus = 'AVAILABLE' | 'ACTIVE' | 'COOLDOWN';
+export type CardSummary = { id: string; panels: number; tokenCost: number; status: CardStatus; activeUntil: Date | null; cooldownUntil: Date | null };

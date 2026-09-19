@@ -1,0 +1,5 @@
+import { redirect } from 'next/navigation';
+import { getCurrentUser } from '@/lib/auth';
+import { db } from '@/lib/db';
+export const dynamic = 'force-dynamic';
+export default async function HistoryPage() { const user = await getCurrentUser(); if (!user) redirect('/login'); const rows = await db.tokenTransaction.findMany({ where: { userId: user.id }, orderBy: { createdAt: 'desc' }, take: 50 }); return <main className="mx-auto max-w-5xl px-6 py-16"><p className="text-sm uppercase tracking-[.2em] text-moss">Registro</p><h1 className="mt-3 font-display text-6xl">Historial</h1><div className="mt-12 divide-y divide-ink/10 border-y border-ink/10">{rows.map(row => <div key={row.id} className="flex justify-between gap-4 py-5"><div><p className="font-medium">{row.type}</p><p className="mt-1 text-xs text-ink/50">{row.createdAt.toLocaleString('es-ES')}</p></div><span className={row.amount > 0 ? 'text-moss' : 'text-ink'}>{row.amount > 0 ? '+' : ''}{row.amount}</span></div>)}{rows.length === 0 && <p className="py-8 text-ink/60">Todavía no hay movimientos.</p>}</div></main>; }
